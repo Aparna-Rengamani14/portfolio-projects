@@ -1,0 +1,152 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk "JDK17"
+        maven "MAVEN3.9"
+    }
+
+    environment {
+        // Nexus settings
+        NEXUS_VERSION       = "nexus3"
+        NEXUS_PROTOCOL      = "http"
+        NEXUS_URL           = "172.31.40.209:8081"
+        NEXUS_REPOSITORY    = "release-repo"
+        NEXUS_CREDENTIAL_ID = "nexuslogin"
+        // Artifact version
+        ARTVERSION = "${env.BUILD_ID}"
+        // SonarQube scanner
+        SCANNER_HOME = tool 'sonarscanner4'
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))  // Keep last 10 builds
+        timeout(time: 30, unit: 'MINUTES')            // Fail long-running builds
+        ansiColor('xterm')                             // Colorful console output
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install -DskipTests'
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: '**/target/*.war', allowEmptyArchive: true
+                }
+            }
+        }
+
+        stage('Test & Code Quality') {
+            parallel {
+
+                stage('Unit Tests') {
+                    steps {
+                        sh 'mvn test'
+                    }
+                }
+
+                stage('Integration Tests') {
+                    steps {
+                        sh 'mvn verify -DskipUnitTests'
+                    }
+                }
+
+                stage('Checkstyle Analysis') {
+                    steps {
+                        sh 'mvn checkstyle:checkstyle'
+                        publishHTML([
+                            reportDir: 'target/site',
+                            reportFiles: 'checkstyle.html',
+                            reportName: 'Checkstyle Report'
+                        ])
+                    }
+                }
+
+                stage('SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('sonar-pro') {
+                            sh """
+                                ${SCANNER_HOME}/bin/sonar-scanner \
+                                    -Dsonar.projectKey=ci-cd-portfolio \
+                                    -Dsonar.projectName=CI-CD-Portfolio \
+                                    -Dsonar.projectVersion=1.0 \
+                                    -Dsonar.java.binaries=target/classes \
+                                    -Dsonar.junit.reportsPath=target/surefire-reports \
+                                    -Dsonar.jacoco.reportPaths=target/jacoco.exec \
+                                    -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
+                            """
+                        }
+                        timeout(time: 10, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
+                    }
+                }
+
+            } // end parallel
+        }
+
+        stage('Publish to Nexus') {
+            steps {
+                script {
+                    def pom = readMavenPom file: "pom.xml"
+                    def artifactFiles = findFiles(glob: "target/*.${pom.packaging}")
+                    if (artifactFiles.length == 0) {
+                        error "No artifact found in target/"
+                    }
+                    def artifactPath = artifactFiles[0].path
+
+                    nexusArtifactUploader(
+                        nexusVersion: NEXUS_VERSION,
+                        protocol: NEXUS_PROTOCOL,
+                        nexusUrl: NEXUS_URL,
+                        groupId: pom.groupId,
+                        version: ARTVERSION,
+                        repository: NEXUS_REPOSITORY,
+                        credentialsId: NEXUS_CREDENTIAL_ID,
+                        artifacts: [
+                            [artifactId: pom.artifactId, classifier: '', file: artifactPath, type: pom.packaging],
+                            [artifactId: pom.artifactId, classifier: '', file: "pom.xml", type: "pom"]
+                        ]
+                    )
+                    echo "Artifact published: ${artifactFiles[0].name} with version ${ARTVERSION}"
+                }
+            }
+        }
+
+        stage('Deployment: Docker Build & Push') {
+            when {
+                expression { fileExists('Dockerfile') }
+            }
+            steps {
+                script {
+                    def imageName = "myrepo/ci-cd-portfolio:${ARTVERSION}"
+                    sh "docker build -t ${imageName} ."
+                    sh "docker push ${imageName}"
+                }
+            }
+        }
+
+    } // end stages
+
+    post {
+        success {
+            echo "✅ Build, Test, Analysis, and Publish completed successfully!"
+        }
+        failure {
+            echo "❌ Pipeline failed. Check console output for details."
+        }
+        always {
+            cleanWs()
+        }
+    }
+
+}
+
