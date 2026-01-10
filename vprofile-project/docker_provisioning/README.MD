@@ -118,10 +118,13 @@ git clone <your-repo-url>
 cd <repo-directory>
 ```
 
-### This project is ideal for:
-- DevOps beginners  
-- Multi-Tier Application demonstration using Docker
-- Understanding Infrastructure + Application automation together 
+### Key Learning Outcomes:
+
+- Infrastructure provisioning with Vagrant
+- Automated VM setup using shell provisioning
+- Docker containerization of multi-tier applications
+- Docker Compose networking & volumes
+- Real-world DevOps deployment workflow
 
 
 
