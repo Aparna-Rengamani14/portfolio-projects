@@ -136,6 +136,14 @@ vagrant ssh
 docker-compose up -d
 ```
 
+### Stopping the Application
+```bash
+docker-compose down
+To stop and delete the VM:
+vagrant halt
+vagrant destroy
+```
+
 ### Key Learning Outcomes:
 
 - Infrastructure provisioning with Vagrant
