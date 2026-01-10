@@ -36,6 +36,14 @@ Browser -> Web Container (vproweb :80) -> App Container (vproapp :8080) -> | MyS
 - **RabbitMQ** – Message broker  
 - **Tomcat** – Application server  
 
+ ## Repository Structure
+.
+├── Vagrantfile
+├── compose ├── docker-compose.yml
+├── architecture ├── architecture.png
+├── README.md
+
+
 ## Deployment Flow
 
 1. Vagrant creates an Ubuntu VM  
