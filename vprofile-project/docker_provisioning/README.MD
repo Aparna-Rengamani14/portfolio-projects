@@ -146,6 +146,11 @@ Copy the docker-compose.yml file from the repository into the VM
 docker-compose up -d
 ```
 
+### Step 5: Check all the containers are up and running
+```bash
+docker ps
+```
+
 ### Stopping the Application
 ```bash
 docker-compose down
