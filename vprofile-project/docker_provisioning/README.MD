@@ -20,13 +20,8 @@ The vProfile application follows a **multi-tier architecture**:
 All components run as **separate Docker containers**, orchestrated using **Docker Compose**, inside a **Vagrant-managed Ubuntu VM**.
 
 ### Request Flow
-Browser
-↓
-Web Container (vproweb :80)
-↓
-App Container (vproapp :8080)
-↓
-| MySQL | Memcached | RabbitMQ |
+Browser -> Web Container (vproweb :80) -> App Container (vproapp :8080) -> | MySQL | Memcached | RabbitMQ |
+
 
 
 ## Tools & Technologies Used
