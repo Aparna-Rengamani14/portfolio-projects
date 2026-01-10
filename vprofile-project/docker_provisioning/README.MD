@@ -141,6 +141,7 @@ vagrant ssh
 ```
 
 ### Step 4: Start the Application
+Copy the docker-compose.yml file from the repository into the VM
 ```bash
 docker-compose up -d
 ```
