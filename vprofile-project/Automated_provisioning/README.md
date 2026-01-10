@@ -34,8 +34,7 @@ and shell provisioning for automatic service setup during vagrant up.
   Stores persistent application data such as user login credentials.
 
 - **Memcached**
-  Acts as a caching layer in front of MySQL to improve performance
-  and reduce database load.
+  Acts as an in-memory cache for MySQL query results to reduce database load and improve response time.
 
 - **RabbitMQ**
   Message broker included to simulate inter-service communication
