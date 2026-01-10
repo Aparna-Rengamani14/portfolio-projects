@@ -1,4 +1,4 @@
-**Multi-Tier Application using Vagrant**
+## Multi-Tier Application using Vagrant
 
 This project provisions a multi-tier application environment using Vagrant.
 It includes separate virtual machines for web, application, database,
@@ -6,14 +6,14 @@ cache, and messaging layers. It uses hostmanager for hostname resolution, Virtua
 and shell provisioning for automatic service setup during vagrant up.
 
 
-**Prerequisites**
+## Prerequisites
 - Vagrant
 - VirtualBox
 - Git
 - Minimum 8 GB RAM recommended
 
 
-**Architecture**
+## Architecture
 - Web Server: Nginx
 - Application Server: Tomcat
 - Database: MySQL
@@ -21,7 +21,7 @@ and shell provisioning for automatic service setup during vagrant up.
 - Message Broker: RabbitMQ
 
 
-**Component Overview**
+## Component Overview
 - **Nginx**
   Acts as a load balancer and entry point to the application.
   Routes incoming requests to the Tomcat application server.
@@ -41,7 +41,7 @@ and shell provisioning for automatic service setup during vagrant up.
   and increase system complexity.
 
 
-**Application workflow**
+## Application workflow
 
 1. The user opens a browser and enters the IP address of the load balancer.
    In this project, a DNS-based URL is not used; instead, the application
@@ -71,7 +71,7 @@ and shell provisioning for automatic service setup during vagrant up.
    enable asynchronous communication between applications.
 
 
-**Project Structure**
+## Project Structure
 .
 ├── Vagrantfile
 ├── mysql.sh
@@ -83,7 +83,7 @@ and shell provisioning for automatic service setup during vagrant up.
 └── application.properties
 
 
-**Setup Instructions**
+## Setup Instructions
 1. Clone the repository:
    ```bash
    git clone https://github.com/your-username/project-name.git
@@ -99,14 +99,14 @@ and shell provisioning for automatic service setup during vagrant up.
    vagrant destroy -f
 
 
-**VM Details**
+## VM Details
 
 <img width="858" height="231" alt="image" src="https://github.com/user-attachments/assets/2ebdd5e2-6e0a-4c68-bde7-28199a9d9369" />
 
 <br>
 </br>
 
-**DevOps Concepts Covered**
+## DevOps Concepts Covered
 1. Infrastructure as Code
 2. Reverse proxy
 3. Automated provisioning
