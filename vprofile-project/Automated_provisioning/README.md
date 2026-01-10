@@ -71,7 +71,8 @@ and shell provisioning for automatic service setup during vagrant up.
    enable asynchronous communication between applications.
 
 
-## Project Structure
+## Repository Structure
+```
 .
 ├── Vagrantfile
 ├── mysql.sh
@@ -81,7 +82,7 @@ and shell provisioning for automatic service setup during vagrant up.
 ├── nginx.sh
 ├── architecture ├── architecture.png
 └── application.properties
-
+```
 
 ## Setup Instructions
 1. Clone the repository:
