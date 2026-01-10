@@ -7,22 +7,27 @@ pipeline {
     }
 
     environment {
-        // Nexus settings
+        // Nexus configuration
         NEXUS_VERSION       = "nexus3"
         NEXUS_PROTOCOL      = "http"
         NEXUS_URL           = "172.31.40.209:8081"
         NEXUS_REPOSITORY    = "release-repo"
         NEXUS_CREDENTIAL_ID = "nexuslogin"
-        // Artifact version
+
+        // Artifact versioning
         ARTVERSION = "${env.BUILD_ID}"
-        // SonarQube scanner
+
+        // SonarQube
         SCANNER_HOME = tool 'sonarscanner4'
+
+        // Notification
+        EMAIL_RECIPIENTS = "devops-team@example.com"
     }
 
     options {
-        buildDiscarder(logRotator(numToKeepStr: '10'))  // Keep last 10 builds
-        timeout(time: 30, unit: 'MINUTES')            // Fail long-running builds
-        ansiColor('xterm')                             // Colorful console output
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 30, unit: 'MINUTES')
+        ansiColor('xterm')
     }
 
     stages {
@@ -62,11 +67,6 @@ pipeline {
                 stage('Checkstyle Analysis') {
                     steps {
                         sh 'mvn checkstyle:checkstyle'
-                        publishHTML([
-                            reportDir: 'target/site',
-                            reportFiles: 'checkstyle.html',
-                            reportName: 'Checkstyle Report'
-                        ])
                     }
                 }
 
@@ -75,22 +75,23 @@ pipeline {
                         withSonarQubeEnv('sonar-pro') {
                             sh """
                                 ${SCANNER_HOME}/bin/sonar-scanner \
-                                    -Dsonar.projectKey=ci-cd-portfolio \
-                                    -Dsonar.projectName=CI-CD-Portfolio \
-                                    -Dsonar.projectVersion=1.0 \
-                                    -Dsonar.java.binaries=target/classes \
-                                    -Dsonar.junit.reportsPath=target/surefire-reports \
-                                    -Dsonar.jacoco.reportPaths=target/jacoco.exec \
-                                    -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
+                                -Dsonar.projectKey=ci-cd-portfolio \
+                                -Dsonar.projectName=CI-CD-Portfolio \
+                                -Dsonar.projectVersion=1.0 \
+                                -Dsonar.sources=src/main/java \
+                                -Dsonar.java.binaries=target/classes \
+                                -Dsonar.junit.reportsPath=target/surefire-reports \
+                                -Dsonar.jacoco.reportPaths=target/jacoco.exec \
+                                -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
                             """
                         }
+
                         timeout(time: 10, unit: 'MINUTES') {
                             waitForQualityGate abortPipeline: true
                         }
                     }
                 }
-
-            } // end parallel
+            }
         }
 
         stage('Publish to Nexus') {
@@ -98,10 +99,10 @@ pipeline {
                 script {
                     def pom = readMavenPom file: "pom.xml"
                     def artifactFiles = findFiles(glob: "target/*.${pom.packaging}")
+
                     if (artifactFiles.length == 0) {
-                        error "No artifact found in target/"
+                        error "No build artifact found!"
                     }
-                    def artifactPath = artifactFiles[0].path
 
                     nexusArtifactUploader(
                         nexusVersion: NEXUS_VERSION,
@@ -112,41 +113,66 @@ pipeline {
                         repository: NEXUS_REPOSITORY,
                         credentialsId: NEXUS_CREDENTIAL_ID,
                         artifacts: [
-                            [artifactId: pom.artifactId, classifier: '', file: artifactPath, type: pom.packaging],
-                            [artifactId: pom.artifactId, classifier: '', file: "pom.xml", type: "pom"]
+                            [artifactId: pom.artifactId, file: artifactFiles[0].path, type: pom.packaging],
+                            [artifactId: pom.artifactId, file: "pom.xml", type: "pom"]
                         ]
                     )
-                    echo "Artifact published: ${artifactFiles[0].name} with version ${ARTVERSION}"
                 }
             }
         }
 
-        stage('Deployment: Docker Build & Push') {
+        stage('Docker Build & Push (Optional)') {
             when {
                 expression { fileExists('Dockerfile') }
             }
             steps {
                 script {
-                    def imageName = "myrepo/ci-cd-portfolio:${ARTVERSION}"
+                    def imageName = "ci-cd-portfolio:${ARTVERSION}"
                     sh "docker build -t ${imageName} ."
                     sh "docker push ${imageName}"
                 }
             }
         }
+    }
 
-    } // end stages
-
+    /* =========================
+       POST ACTIONS & NOTIFICATIONS
+       ========================= */
     post {
+
         success {
-            echo "✅ Build, Test, Analysis, and Publish completed successfully!"
+            mail(
+                to: EMAIL_RECIPIENTS,
+                subject: "Jenkins Build SUCCESS - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                Build Status : SUCCESS
+                Job Name     : ${env.JOB_NAME}
+                Build Number : ${env.BUILD_NUMBER}
+                Artifact Ver : ${ARTVERSION}
+
+                View Build:
+                ${env.BUILD_URL}
+                """
+            )
         }
+
         failure {
-            echo "❌ Pipeline failed. Check console output for details."
+            mail(
+                to: EMAIL_RECIPIENTS,
+                subject: "Jenkins Build FAILED - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                Build Status : FAILED
+                Job Name     : ${env.JOB_NAME}
+                Build Number : ${env.BUILD_NUMBER}
+
+                Please check the console output:
+                ${env.BUILD_URL}
+                """
+            )
         }
+
         always {
             cleanWs()
         }
     }
-
 }
-
