@@ -120,7 +120,7 @@ cd <repo-directory>
 
 ### This project is ideal for:
 - DevOps beginners  
-- Multi-Tier Application demonstration 
+- Multi-Tier Application demonstration using Docker
 - Understanding Infrastructure + Application automation together 
 
 
