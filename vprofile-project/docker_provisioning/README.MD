@@ -120,7 +120,7 @@ cd <repo-directory>
 
 ### This project is ideal for:
 - DevOps beginners  
-- Interview demonstrations  
+- Multi-Tier Application demonstration 
 - Understanding Infrastructure + Application automation together 
 
 
