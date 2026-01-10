@@ -8,9 +8,9 @@ This project is ideal for:
 
 ## Architecture Overview
 The vProfile application follows a multi-tier architecture:
-	- Web Tier – Frontend web server (Nginx/Apache)
-	- App Tier – Java application running on Tomcat
-	- DB Tier – MySQL database
-	- Cache Tier – Memcached
-	- Messaging Tier – RabbitMQ
+	- Web Tier  Frontend web server (Nginx/Apache)
+	- App Tier  Java application running on Tomcat
+	- DB Tier  MySQL database
+	- Cache Tier  Memcached
+	- Messaging Tier  RabbitMQ
 All components run as separate Docker containers, orchestrated using Docker Compose, inside a Vagrant-managed Ubuntu VM.
