@@ -118,6 +118,24 @@ git clone <your-repo-url>
 cd <repo-directory>
 ```
 
+### Step 2: Start the VM
+```bash
+vagrant up
+```
+This will:
+	• Create the VM
+	• Install Docker & Docker Compose
+
+### Step 3: SSH into the VM
+```bash
+vagrant ssh
+```
+
+### Step 4: Start the Application
+```bash
+docker-compose up -d
+```
+
 ### Key Learning Outcomes:
 
 - Infrastructure provisioning with Vagrant
