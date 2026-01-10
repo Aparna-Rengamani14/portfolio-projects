@@ -3,11 +3,7 @@
 This repository demonstrates **end-to-end deployment** of the **vProfile multi-tier application** using **Vagrant + VirtualBox** and **Docker Compose**.
 
 The goal of this project is to showcase how a **complete application stack** can be provisioned automatically on a local VM and deployed using **containerization**.
-
-### This project is ideal for:
-- DevOps beginners  
-- Interview demonstrations  
-- Understanding Infrastructure + Application automation together  
+ 
 
 ---
 
@@ -125,6 +121,11 @@ Provisioning is done using an **inline shell provisioner**, making the setup ful
 ```bash
 git clone <your-repo-url>
 cd <repo-directory>
+
+### This project is ideal for:
+- DevOps beginners  
+- Interview demonstrations  
+- Understanding Infrastructure + Application automation together 
 
 
 ### This project is ideal for:
