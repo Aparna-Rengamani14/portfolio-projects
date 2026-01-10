@@ -121,6 +121,7 @@ Provisioning is done using an **inline shell provisioner**, making the setup ful
 ```bash
 git clone <your-repo-url>
 cd <repo-directory>
+```
 
 ### This project is ideal for:
 - DevOps beginners  
@@ -128,9 +129,5 @@ cd <repo-directory>
 - Understanding Infrastructure + Application automation together 
 
 
-### This project is ideal for:
-- DevOps beginners  
-- Interview demonstrations  
-- Understanding Infrastructure + Application automation together  
 
 
